@@ -11,8 +11,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.CAN;
-import frc.robot.constants.INTAKESHOOTER;
+import frc.constants.CAN;
+import frc.constants.INTAKESHOOTER;
 import frc.team4201.lib.utils.CtreUtils;
 
 public class IntakeShooter extends SubsystemBase {
