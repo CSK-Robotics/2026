@@ -43,16 +43,19 @@ public class SwerveModule {
 
     // TODO: Remove these constants:
     ////////////////////////////////////////////
+    //Multi-line comment are errors that claim to never use the variables and methods defined. 
     private static final double kWheelRadius = 0.0508;
     private static final double kGearRatio = 6.75;
+
+    // Olivia & Niema; Errors for the kWheelRadius & kGearRatio came from commenting out the variables below
 
     private static final double kDriveWheelDistanceConversionConstant = Math.PI * 2 * kWheelRadius / kGearRatio;
     private static final int kEncoderResolution = 4096;
     private static final double sparkFlexMaxSpeed = 3.6576;
     ////////////////////////////////////////////
 
-    //private static final double kModuleMaxAngularVelocity = Drivetrain.kMaxAngularSpeed;
-    //private static final double kModuleMaxAngularAcceleration = 2 * Math.PI; // radians per second squared
+    private static final double kModuleMaxAngularVelocity = Drivetrain.kMaxAngularSpeed;
+    private static final double kModuleMaxAngularAcceleration = 2 * Math.PI; // radians per second squared
     private String moduleName;
     public SwerveModuleState desiredState;
 
@@ -67,7 +70,9 @@ public class SwerveModule {
     private final RevSwerveModuleConstants constants;
 
     // Gains are for example purposes only - must be determined for your own robot!
-    private final PIDController m_drivePIDController = new PIDController(1, 0, 0);
+
+    // Variable below is not called 
+    //private final PIDController m_drivePIDController = new PIDController(1, 0, 0);
 
     // Gains are for example purposes only - must be determined for your own robot!
     /*
