@@ -48,11 +48,11 @@ public final class Constants {
         public static final double driveRevToMeters = wheelCircumference / (driveGearRatio);
         public static final double driveRpmToMetersPerSecond = driveRevToMeters / 60;
         /* Drivetrain Constants */
-        public static final double trackWidth = Units.inchesToMeters(23.75);
-        public static final double wheelBase = Units.inchesToMeters(23.75);
+        public static final double trackWidth = Units.inchesToMeters(30); //trackwidth distance between left and right
+        public static final double wheelBase = Units.inchesToMeters(22); // wheelbase distance between front and back
         /*
          * Swerve Kinematics
-         * No need to ever change this unless you are not doing a traditional
+         * No need to ever change this unless you are not doing a traditional 
          * rectangular/square 4 module swerve
          */
         public static final SwerveDriveKinematics swerveKinematics = new SwerveDriveKinematics(
@@ -319,8 +319,8 @@ public final class Constants {
 
     public static class FuelConstants {
     // Motor controller IDs for Fuel Mechanism motors
-    public static final int FEEDER_MOTOR_ID = 6;
-    public static final int INTAKE_LAUNCHER_MOTOR_ID = 5;
+    public static final int FEEDER_MOTOR_ID = 98;
+    public static final int INTAKE_LAUNCHER_MOTOR_ID = 99;
 
     // Current limit and nominal voltage for fuel mechanism motors.
     public static final int FEEDER_MOTOR_CURRENT_LIMIT = 60;
