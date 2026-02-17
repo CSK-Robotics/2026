@@ -228,95 +228,6 @@ public final class Constants {
                 kMaxAngularSpeedRadiansPerSecondSquared);
     }
 
-    public static class ElevatorConstants {
-        public static final double kElevatorKp = 0.0;
-        public static final double kElevatorKi = 0.0;
-        public static final double kElevatorKd = 0.0;
-
-        public static final double kElevatorkS = 0.01964; // volts (V)
-        public static final double kElevatorkV = 3.894; // volt per velocity (V/(m/s))
-        public static final double kElevatorkA = 0.173; // volt per acceleration (V/(m/s²))
-        public static final double kElevatorkG = 0.91274; // volts (V)
-
-        public static final double kElevatorGearing = 10.0;
-        public static final double kElevatorDrumRadius = Units.inchesToMeters(2.0);
-        public static final double kCarriageMass = 4.0; // kg
-
-        // Encoder is reset to measure 0 at the bottom, so minimum height is 0.
-        public static final Distance kLaserCANOffset = Inches.of(3);
-        public static final Distance kStartingHeightSim = Meters.of(0);
-        public static final Distance kMinElevatorHeight = Meters.of(0.0);
-        public static final Distance kMaxElevatorHeight = Meters.of(10.25);
-
-        // TODO: #13 Find the actual values for CarriageGroundOffset, PositionTolerance
-        // and kZeroingSpeed
-        public static final double kCarriageGroundOffset = 0;
-        public static final double kPositionTolerance = 0;
-        public static final double kZeroingSpeed = 0;
-
-        public static double kElevatorRampRate = 0.1;
-        public static int kElevatorCurrentLimit = 40;
-        public static double kMaxVelocity = Inches.of(30).per(Second).in(MetersPerSecond);
-        public static double kMaxAcceleration = Inches.of(15).per(Second).per(Second)
-                .in(MetersPerSecondPerSecond);
-    }
-
-    public static class CoralConstants {
-        public static final double kArmKp = 26.722;
-        public static final double kArmKi = 0;
-        public static final double kArmKd = 1.6047;
-
-        public static final double kArmGearing = 25.0;
-        // public static final double kArmLength = Units.inchesToMeters(2.0);
-        // public static final double kMass = 4.0; // kg
-
-        // Encoder is reset to measure 0 at the bottom, so minimum height is 0.
-        public static final Distance kLaserCANOffset = Inches.of(3);
-        // public static final Distance kStartingHeightSim = Meters.of(0);
-        // public static final Distance kMinElevatorHeight = Meters.of(0.0);
-        public static final Distance kMaxElevatorHeight = Meters.of(10.25);
-
-        // TODO: #13 Find the actual values for CarriageGroundOffset, PositionTolerance
-        // and kZeroingSpeed
-        // public static final double kCarriageGroundOffset = 0;
-        public static final double kPositionTolerance = 0;
-        public static final double kZeroingSpeed = 0;
-
-        public static double kArmRampRate = 0.1;
-        public static int kArmCurrentLimit = 40;
-        public static double kArmMaxVelocity = Meters.of(4).per(Second).in(MetersPerSecond);
-        public static double kArmMaxAcceleration = Meters.of(8).per(Second).per(Second)
-                .in(MetersPerSecondPerSecond);
-    }
-
-    public static class AlgaeConstants {
-        public static final double kArmKp = 26.722;
-        public static final double kArmKi = 0;
-        public static final double kArmKd = 1.6047;
-
-        public static final double kArmGearing = 25.0;
-        // public static final double kArmLength = Units.inchesToMeters(2.0);
-        // public static final double kMass = 4.0; // kg
-
-        // Encoder is reset to measure 0 at the bottom, so minimum height is 0.
-        public static final Distance kLaserCANOffset = Inches.of(3);
-        // public static final Distance kStartingHeightSim = Meters.of(0);
-        // public static final Distance kMinElevatorHeight = Meters.of(0.0);
-        public static final Distance kMaxElevatorHeight = Meters.of(10.25);
-
-        // TODO: #13 Find the actual values for CarriageGroundOffset, PositionTolerance
-        // and kZeroingSpeed
-        // public static final double kCarriageGroundOffset = 0;
-        public static final double kPositionTolerance = 0;
-        public static final double kZeroingSpeed = 0;
-
-        public static double kArmRampRate = 0.1;
-        public static int kArmCurrentLimit = 40;
-        public static double kArmMaxVelocity = Meters.of(4).per(Second).in(MetersPerSecond);
-        public static double kArmMaxAcceleration = Meters.of(8).per(Second).per(Second)
-                .in(MetersPerSecondPerSecond);
-    }
-
     public static class FuelConstants {
     // Motor controller IDs for Fuel Mechanism motors
     public static final int FEEDER_MOTOR_ID = 98;
@@ -335,5 +246,13 @@ public final class Constants {
     public static final double LAUNCHING_LAUNCHER_VOLTAGE = 10.6;
     public static final double SPIN_UP_FEEDER_VOLTAGE = -6;
     public static final double SPIN_UP_SECONDS = 1;
+  }
+
+  public static final class IntakeConstants {
+    public static final int kMotorPort = 6;
+    public static final int[] kSolenoidPorts = {2, 3};
+    
+    public static final int intakeMotorID = 13;
+    public static final int feederMotorID = 14;
   }
 }

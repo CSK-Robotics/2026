@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.subsystems.Intake;
 import frc.subsystems.Shooter;
 import static frc.robot.Constants.FuelConstants.*;
 
@@ -21,6 +22,7 @@ public class Robot extends TimedRobot {
   private final Drivetrain m_swerve = new Drivetrain();
   private final EventLoop m_loop = new EventLoop(); 
   private final Shooter ballSubsystem = new Shooter();
+  private final Intake m_intake = new Intake();
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0 to 1.
   private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3);
@@ -57,8 +59,10 @@ public class Robot extends TimedRobot {
       m_swerve.lockWheels();
     }
 
-    intake();
     m_loop.poll();
+    
+    shooter();
+    intake();
   }
 
   @Override
@@ -88,20 +92,25 @@ public class Robot extends TimedRobot {
     m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative, getPeriod());
   }
 
-  private void intake(){
-    // While the left bumper on operator controller is held, intake Fuel
-    m_controller2.leftBumper()
-        .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
-    // While the right bumper on the operator controller is held, spin up for 1
-    // second, then launch fuel. When the button is released, stop.
+  private void shooter(){
+    // While the right bumper on operator controller is held, intake Fuel
     m_controller2.rightBumper()
+        .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
+    // While the right trigger on the operator controller is held, spin up for 1
+    // second, then launch fuel. When the button is released, stop.
+    m_controller2.rightTrigger()
         .whileTrue(ballSubsystem.spinUpCommand().withTimeout(SPIN_UP_SECONDS)
             .andThen(ballSubsystem.launchCommand())
             .finallyDo(() -> ballSubsystem.stop()));
-    // While the A button is held on the operator controller, eject fuel back out
+    // While the B button is held on the operator controller, eject fuel back out
     // the intake
-    m_controller2.a()
+    m_controller2.b()
         .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
+  }
+
+  private void intake(){
+    m_controller2.leftBumper().whileTrue(m_intake.load());
+    m_controller2.leftTrigger().whileTrue(m_intake.purge());
   }
 
   public Command getAutonomousCommand() {
