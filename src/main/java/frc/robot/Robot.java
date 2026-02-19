@@ -57,8 +57,8 @@ public class Robot extends TimedRobot {
       m_swerve.lockWheels();
     }
 
-    // intake();
-    // m_loop.poll();
+    m_loop.poll();
+    intake();
   }
 
   @Override
