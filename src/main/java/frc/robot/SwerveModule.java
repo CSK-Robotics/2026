@@ -24,7 +24,9 @@ import java.util.concurrent.TimeUnit;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -60,7 +62,7 @@ public class SwerveModule {
     private final SparkFlex m_turningMotor;
 
     private final RelativeEncoder rel_driveEncoder;
-    private final RelativeEncoder rel_angleEncoder;
+    //private final RelativeEncoder rel_angleEncoder;
 
     private final CANcoder m_turningEncoderPE6;
     private final RevSwerveModuleConstants constants;
@@ -120,22 +122,38 @@ public class SwerveModule {
         config_m_drivingMotor.closedLoop.velocityFF(1/565); //Kv=565 for NEO Vortex (look up on website)
         config_m_drivingMotor.inverted(invert);
 
-        SparkFlexConfig config_m_turningMotor = new SparkFlexConfig();
-        config_m_turningMotor.encoder.positionConversionFactor(Constants.Swerve.DegreesPerTurnRotation);
-        config_m_turningMotor.encoder.velocityConversionFactor(Constants.Swerve.DegreesPerTurnRotation / 60);
-        config_m_turningMotor.closedLoop.p(Constants.Swerve.angleKP);
-        config_m_turningMotor.closedLoop.i(Constants.Swerve.angleKI);
-        config_m_turningMotor.closedLoop.d(Constants.Swerve.angleKD);
-        config_m_turningMotor.closedLoop.outputRange(-Constants.Swerve.anglePower, Constants.Swerve.anglePower);
-        config_m_turningMotor.closedLoopRampRate(Constants.Swerve.angleRampRate);
-        config_m_turningMotor.smartCurrentLimit(Constants.Swerve.angleContinuousCurrentLimit);
+        // Initialize the TalonFX and the Configurator
+        TalonFX m_turningMotor = new TalonFX(turningMotorChannel);
+        TalonFXConfiguration config_m_turningMotor = new TalonFXConfiguration();
 
-        // Encoders inside the motor are configured and initial positions are set
-        m_driveMotor.configure(config_m_drivingMotor, SparkBase.ResetMode.kResetSafeParameters, null);
-        m_turningMotor.configure(config_m_turningMotor, SparkBase.ResetMode.kResetSafeParameters, null);
+        // 1. Feedback & Conversion Factors
+        // Phoenix 6 uses rotations by default. To match your 'DegreesPerTurnRotation', 
+        // we use SensorToMechanismRatio (1 / gear reduction).
+        config_m_turningMotor.Feedback.SensorToMechanismRatio = 1.0 / Constants.Swerve.DegreesPerTurnRotation;
+
+        // 2. PID Gains (Slot 0)
+        var slot0 = config_m_turningMotor.Slot0;
+        slot0.kP = Constants.Swerve.angleKP;
+        slot0.kI = Constants.Swerve.angleKI;
+        slot0.kD = Constants.Swerve.angleKD;
+
+        // 3. Output Limits & Ramping
+        config_m_turningMotor.Voltage.PeakForwardVoltage = Constants.Swerve.anglePower * 12.0; // Assuming anglePower is 0.0 to 1.0
+        config_m_turningMotor.Voltage.PeakReverseVoltage = -Constants.Swerve.anglePower * 12.0;
+        config_m_turningMotor.ClosedLoopRamps.VoltageClosedLoopRampPeriod = Constants.Swerve.angleRampRate;
+
+        // 4. Current Limits
+        config_m_turningMotor.CurrentLimits.StatorCurrentLimit = Constants.Swerve.angleContinuousCurrentLimit;
+        config_m_turningMotor.CurrentLimits.StatorCurrentLimitEnable = true;
+
+        // 5. Apply the Configuration
+        // This is the Phoenix 6 equivalent of m_turningMotor.configure(...)
+        m_turningMotor.getConfigurator().apply(config_m_turningMotor);
+
+
         rel_driveEncoder = m_driveMotor.getEncoder();
         rel_driveEncoder.setPosition(0);
-        rel_angleEncoder = m_turningMotor.getEncoder();
+        //rel_angleEncoder = m_turningMotor.getEncoder();
 
         m_turningEncoderPE6 = new CANcoder(turningEncoderCANID, "rio");
 
