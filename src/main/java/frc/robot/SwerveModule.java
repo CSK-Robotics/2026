@@ -25,8 +25,10 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -38,6 +40,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.util.CTREModuleState;
 import frc.util.RevSwerveModuleConstants;
 
@@ -59,7 +62,8 @@ public class SwerveModule {
     public SwerveModuleState desiredState;
 
     private final SparkFlex m_driveMotor;
-    private final SparkFlex m_turningMotor;
+    private final TalonFX m_turningMotor;
+    private final PositionVoltage m_angleSetter;
 
     private final RelativeEncoder rel_driveEncoder;
     //private final RelativeEncoder rel_angleEncoder;
@@ -103,7 +107,7 @@ public class SwerveModule {
         this.constants = constants; // NOTE: is this right?? idk
         this.moduleName = name;
         m_driveMotor = new SparkFlex(driveMotorChannel, MotorType.kBrushless);
-        m_turningMotor = new SparkFlex(turningMotorChannel, MotorType.kBrushless);
+        //m_turningMotor = new SparkFlex(turningMotorChannel, MotorType.kBrushless);
         
         /*
         m_driveMotor.configure(
@@ -123,7 +127,7 @@ public class SwerveModule {
         config_m_drivingMotor.inverted(invert);
 
         // Initialize the TalonFX and the Configurator
-        TalonFX m_turningMotor = new TalonFX(turningMotorChannel);
+        m_turningMotor = new TalonFX(turningMotorChannel);
         TalonFXConfiguration config_m_turningMotor = new TalonFXConfiguration();
 
         // 1. Feedback & Conversion Factors
@@ -145,11 +149,14 @@ public class SwerveModule {
         // 4. Current Limits
         config_m_turningMotor.CurrentLimits.StatorCurrentLimit = Constants.Swerve.angleContinuousCurrentLimit;
         config_m_turningMotor.CurrentLimits.StatorCurrentLimitEnable = true;
+        
+        config_m_turningMotor.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
+        config_m_turningMotor.Feedback.FeedbackRemoteSensorID = turningEncoderCANID;
 
         // 5. Apply the Configuration
         // This is the Phoenix 6 equivalent of m_turningMotor.configure(...)
         m_turningMotor.getConfigurator().apply(config_m_turningMotor);
-
+        m_angleSetter = new PositionVoltage(0);
 
         rel_driveEncoder = m_driveMotor.getEncoder();
         rel_driveEncoder.setPosition(0);
@@ -190,11 +197,12 @@ public class SwerveModule {
         //Angle angle_data = position_data.getValue();
 
         
+        var positonSignal = m_turningMotor.getPosition();
 
         return new SwerveModuleState(
                 // rel_driveEncoder.getRate(), new Rotation2d(m_turningEncoder.getDistance())
                 //rel_driveEncoder.getVelocity(), new Rotation2d(angle_data));
-                rel_driveEncoder.getVelocity(), Rotation2d.fromDegrees(rel_angleEncoder.getPosition()));
+                rel_driveEncoder.getVelocity(), Rotation2d.fromDegrees(positonSignal.getValueAsDouble()));
     }
 
     /**
@@ -205,9 +213,10 @@ public class SwerveModule {
     public SwerveModulePosition getPosition() {
         //StatusSignal<Angle> position_data = m_turningEncoderPE6.getAbsolutePosition();
         //Angle angle_data = position_data.getValue();
+        var positonSignal = m_turningMotor.getPosition();
 
         return new SwerveModulePosition(
-                rel_driveEncoder.getPosition(), Rotation2d.fromDegrees(rel_angleEncoder.getPosition())
+                rel_driveEncoder.getPosition(), Rotation2d.fromDegrees(positonSignal.getValueAsDouble())
         );
         // rel_driveEncoder.getDistance(), new
         // Rotation2d(m_turningEncoder.getDistance()));
@@ -235,10 +244,14 @@ public class SwerveModule {
         {
             m_turningMotor.stopMotor();
         }
+
         double degReference = this.desiredState.angle.getDegrees();
+        m_turningMotor.setControl(m_angleSetter.withPosition(degReference / 360.0));
+
+        //double degReference = this.desiredState.angle.getDegrees();
         //System.out.println("(" + device_name + ")" + "degReference: " + degReference);
-        SparkClosedLoopController turning_controller = m_turningMotor.getClosedLoopController();
-        turning_controller.setReference(degReference, ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        //SparkClosedLoopController turning_controller = m_turningMotor.getClosedLoopController();
+        //turning_controller.setReference(degReference, ControlType.kPosition, ClosedLoopSlot.kSlot0);
         
         // Drive motor controller:
         SparkClosedLoopController driving_controller = m_driveMotor.getClosedLoopController();
@@ -258,30 +271,24 @@ public class SwerveModule {
         double current_canCoder_state = getCANcoderAngle().getDegrees();
         double absolutePosition = current_canCoder_state - this.constants.angleOffset.getDegrees();
         System.out.println("(" + moduleName + ")" +" absolute positions: " + absolutePosition + " cancoder position: " + current_canCoder_state);
-        rel_angleEncoder.setPosition(-absolutePosition);
+        // rel_angleEncoder.setPosition(-absolutePosition);
+        m_turningMotor.setPosition(-absolutePosition);
     }
 
-    public void synchronizeEncoders() throws InterruptedException 
-    {
-        rel_angleEncoder.setPosition(0);
-        double degree_rot = 0;
-        while (getCANcoderAngle().getDegrees() <= this.constants.angleOffset.getDegrees()-1 || getCANcoderAngle().getDegrees() >= this.constants.angleOffset.getDegrees()+1) {
-            System.out.println("degree_rot: " + degree_rot + " current pos: " + getCANcoderAngle().getDegrees() );
-            SparkClosedLoopController turning_controller = m_turningMotor.getClosedLoopController();
-            turning_controller.setReference(degree_rot, ControlType.kPosition, ClosedLoopSlot.kSlot0);
-            degree_rot = degree_rot+0.5;
-            Thread.sleep(5);
-        }
-        rel_angleEncoder.setPosition(0);
-        
-        
-        //while (true) {
-        /*
-        double current_canCoder_state = getCANcoderAngle().getDegrees();
-        double absolutePosition = current_canCoder_state - this.constants.angleOffset.getDegrees();
-        System.out.println("(" + moduleName + ")" +" absolute positions: " + absolutePosition + " cancoder position: " + current_canCoder_state);
 
-        rel_angleEncoder.setPosition(absolutePosition);
-        */
+    public void synchronizeEncoders() {
+        // 1. Get the absolute position from the CANcoder (0 to 1 rotations)
+        // We use getAbsolutePosition to ignore any previous offsets/zeros
+        double absoluteRotations = m_turningEncoderPE6.getAbsolutePosition().getValueAsDouble();
+
+        // 2. Subtract your physical offset (must be in rotations)
+        double offsetRotations = this.constants.angleOffset.getRotations();
+        double synchronizedPos = absoluteRotations - offsetRotations;
+
+        // 3. Seed the TalonFX position. 
+        // This happens instantly; no motor movement required.
+        m_turningMotor.setPosition(synchronizedPos);
+        
+        System.out.println(moduleName + " synchronized to: " + synchronizedPos);
     }
 }
