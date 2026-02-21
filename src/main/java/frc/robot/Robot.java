@@ -57,8 +57,6 @@ public class Robot extends TimedRobot {
       m_swerve.lockWheels();
     }
 
-    m_loop.poll();
-    intake();
   }
 
   @Override
@@ -85,24 +83,22 @@ public class Robot extends TimedRobot {
     // the right by default.
     final var rot = Math.pow(-m_rotLimiter.calculate(MathUtil.applyDeadband(m_controller.getRightX(), 0.02)), 3)
         * Drivetrain.kMaxAngularSpeed;
+
+    // Intake and shooter
+    if(m_controller.getRightBumper()) {
+      ballSubsystem.intake();
+    }else if(m_controller.getLeftBumper()){
+      ballSubsystem.launch();
+    } else if (m_controller.getYButton()){
+      ballSubsystem.eject();
+    }else {
+      ballSubsystem.stop();
+    }
+
     m_swerve.drive(xSpeed, ySpeed, rot, fieldRelative, getPeriod());
   }
 
-  private void intake(){
-    // While the left bumper on operator controller is held, intake Fuel
-    m_controller2.leftBumper()
-        .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.intake(), () -> ballSubsystem.stop()));
-    // While the right bumper on the operator controller is held, spin up for 1
-    // second, then launch fuel. When the button is released, stop.
-    m_controller2.rightBumper()
-        .whileTrue(ballSubsystem.spinUpCommand().withTimeout(SPIN_UP_SECONDS)
-            .andThen(ballSubsystem.launchCommand())
-            .finallyDo(() -> ballSubsystem.stop()));
-    // While the A button is held on the operator controller, eject fuel back out
-    // the intake
-    m_controller2.a()
-        .whileTrue(ballSubsystem.runEnd(() -> ballSubsystem.eject(), () -> ballSubsystem.stop()));
-  }
+
 
   public Command getAutonomousCommand() {
     /*

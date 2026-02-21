@@ -45,12 +45,14 @@ public class Shooter extends SubsystemBase {
   }
 
   public void intake() {
+    System.out.println("Intake");
     feederRoller.setVoltage(SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));
     intakeLauncherRoller.setVoltage(SmartDashboard.getNumber("Intaking intake roller value", INTAKING_INTAKE_VOLTAGE));
     // lights.setMode(LightsSubsystem.Mode.INTAKING);
   }
 
   public void eject() {
+    System.out.println("Eject");
     feederRoller.setVoltage(-1 * SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));
     intakeLauncherRoller.setVoltage(
         -1 * SmartDashboard.getNumber("Intaking launcher roller value", INTAKING_INTAKE_VOLTAGE));
@@ -58,6 +60,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void launch() {
+    System.out.println("Launch");
     feederRoller.setVoltage(SmartDashboard.getNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE));
     intakeLauncherRoller.setVoltage(
         SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
@@ -65,12 +68,14 @@ public class Shooter extends SubsystemBase {
   }
 
   public void stop() {
+    System.out.println("Stop");
     feederRoller.set(0);
     intakeLauncherRoller.set(0);
     // lights.setMode(LightsSubsystem.Mode.IDLE);
   }
 
   public void spinUp() {
+    System.out.println("Spin Up");
     feederRoller.setVoltage(SmartDashboard.getNumber("Spin-up feeder roller value", SPIN_UP_FEEDER_VOLTAGE));
     intakeLauncherRoller.setVoltage(
         SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
@@ -87,6 +92,11 @@ public class Shooter extends SubsystemBase {
 
   public Command launchCommand() {
     return this.run(() -> launch());
+  }
+
+  public Command shootingCommand() {
+    return this.spinUpCommand().withTimeout(SPIN_UP_SECONDS)
+            .andThen(this.launchCommand()).finallyDo(() -> this.stop());
   }
 
   @Override
