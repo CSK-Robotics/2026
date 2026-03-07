@@ -87,9 +87,9 @@ public class Robot extends TimedRobot {
         * Drivetrain.kMaxAngularSpeed;
 
     // Intake and shooter
-    if(m_controller.getRightBumper()) {
+    if(m_controller.getLeftBumper()) {
       ballSubsystem.intake();
-    }else if(m_controller.getLeftBumper()){
+    }else if(m_controller.getRightBumper()){
       ballSubsystem.launch();
     } else if (m_controller.getYButton()){
       ballSubsystem.eject();
