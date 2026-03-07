@@ -115,7 +115,7 @@ public class Robot extends TimedRobot {
      * return Commands.none();
      * }
      */
-
-    return m_swerve.run(() -> m_swerve.drive(0.0, 0.5, 0.0, false, getPeriod())).until(() -> isTeleop());
+      return ballSubsystem.run(() -> ballSubsystem.launch()).until(() -> isTeleop());
+    // return m_swerve.run(() -> m_swerve.drive(0.0, 0.5, 0.0, false, getPeriod())).until(() -> isTeleop());
   }
 }
