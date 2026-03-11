@@ -32,7 +32,8 @@ public class Robot extends TimedRobot {
 
  @Override
   public void autonomousInit() {
-    m_swerve.setupAutonomousConfigure();
+    // m_swerve.setupAutonomousConfigure();
+    // ballSubsystem.setupAutonomousConfigure();
     m_autonomousCommand = getAutonomousCommand();
   }
 
@@ -57,6 +58,8 @@ public class Robot extends TimedRobot {
       m_swerve.lockWheels();
     }
 
+    m_loop.poll();
+    
   }
 
   @Override
@@ -85,9 +88,9 @@ public class Robot extends TimedRobot {
         * Drivetrain.kMaxAngularSpeed;
 
     // Intake and shooter
-    if(m_controller.getRightBumper()) {
+    if(m_controller.getLeftBumper()) {
       ballSubsystem.intake();
-    }else if(m_controller.getLeftBumper()){
+    }else if(m_controller.getRightBumper()){
       ballSubsystem.launch();
     } else if (m_controller.getYButton()){
       ballSubsystem.eject();
@@ -113,7 +116,7 @@ public class Robot extends TimedRobot {
      * return Commands.none();
      * }
      */
-
-    return m_swerve.run(() -> m_swerve.drive(0.0, 0.5, 0.0, false, getPeriod())).until(() -> isTeleop());
+      return ballSubsystem.run(() -> ballSubsystem.launch()).until(() -> isTeleop());
+    // return m_swerve.run(() -> m_swerve.drive(0.0, 0.5, 0.0, false, getPeriod())).until(() -> isTeleop());
   }
 }
