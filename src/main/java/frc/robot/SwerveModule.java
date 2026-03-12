@@ -6,6 +6,8 @@ package frc.robot;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkFlexExternalEncoder;
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -41,6 +43,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.util.CTREModuleState;
 import frc.util.RevSwerveModuleConstants;
 
@@ -126,8 +129,10 @@ public class SwerveModule {
         config_m_drivingMotor.closedLoop.velocityFF(1/565); //Kv=565 for NEO Vortex (look up on website)
         config_m_drivingMotor.inverted(invert);
 
+        m_driveMotor.configure(config_m_drivingMotor, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
         // Initialize the TalonFX and the Configurator
-        m_turningMotor = new TalonFX(turningMotorChannel);
+        m_turningMotor = new TalonFX(turningMotorChannel, "rio");
         TalonFXConfiguration config_m_turningMotor = new TalonFXConfiguration();
 
         // 1. Feedback & Conversion Factors
@@ -264,6 +269,11 @@ public class SwerveModule {
             driving_controller.setReference(velocity, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
         }
 
+            
+        SmartDashboard.putNumber("Desired " + device_name + " Angle", degReference);
+        SmartDashboard.putNumber("Desired " + device_name + " Speed", this.desiredState.speedMetersPerSecond);
+
+        SmartDashboard.putNumber("Turning" + device_name + " Output Voltage", m_turningMotor.get());
         //System.out.println( "(" + device_name + ")" + "degRef: " + degReference + " desired_speed: " + this.desiredState.speedMetersPerSecond + " current cancoder angle: " + currentAngle);
     }
 

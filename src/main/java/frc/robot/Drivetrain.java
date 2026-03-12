@@ -30,7 +30,6 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import com.studica.frc.*;
-import com.studica.frc.AHRS.NavXComType;;
 
 /** Represents a swerve drive style drivetrain. */
 public class Drivetrain extends SubsystemBase {
@@ -48,7 +47,7 @@ public class Drivetrain extends SubsystemBase {
   private final SwerveModule m_backRight = new SwerveModule(6, 5, 12, Constants.Swerve.Modules.Mod3.constants, "m_backRight", true);
 
   //private final AnalogGyro m_gyro = new AnalogGyro(0);
-  private final AHRS m_gyro = new AHRS(NavXComType.kUSB1); /* Alternatives:  SPI.Port.kMXP, I2C.Port.kMXP or SerialPort.Port.kUSB */
+  private final Navx m_gyro = new Navx(0); /* Alternatives:  SPI.Port.kMXP, I2C.Port.kMXP or SerialPort.Port.kUSB */
 
   private final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(
@@ -72,7 +71,7 @@ public class Drivetrain extends SubsystemBase {
           });
 
   public Drivetrain() {
-    m_gyro.reset();
+    m_gyro.resetYaw();
   }
 
   public void setupAutonomousConfigure() {
@@ -189,15 +188,15 @@ public class Drivetrain extends SubsystemBase {
     return m_odometry.getPoseMeters();
   }
 
-  public LimelightHelpers.PoseEstimate getLimelightPose() {
-    // First, tell Limelight your robot's current orientation
-    double robotYaw = m_gyro.getAngle();  
-    LimelightHelpers.SetRobotOrientation("", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
+  // public LimelightHelpers.PoseEstimate getLimelightPose() {
+  //   // First, tell Limelight your robot's current orientation
+  //   double robotYaw = m_gyro.getAngle();  
+  //   LimelightHelpers.SetRobotOrientation("", robotYaw, 0.0, 0.0, 0.0, 0.0, 0.0);
 
-    // Get the pose estimate
-    LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
-    return limelightMeasurement;
-  }
+  //   // Get the pose estimate
+  //   LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+  //   return limelightMeasurement;
+  // }
 
   public void resetPose(Pose2d consumerPose) {
     m_odometry.resetPose(consumerPose);
@@ -229,10 +228,21 @@ public class Drivetrain extends SubsystemBase {
           posData_m_backLeft,
           posData_m_backRight
         });
+
+        
+    SmartDashboard.putNumber("FL Angle", posData_m_frontLeft.angle.getDegrees());
+    SmartDashboard.putNumber("FL Speed", posData_m_frontLeft.distanceMeters);
+
+    SmartDashboard.putNumber("FR Angle", posData_m_frontRight.angle.getDegrees());
+    SmartDashboard.putNumber("FR Speed", posData_m_frontRight.distanceMeters);
+    SmartDashboard.putNumber("BL Angle", posData_m_backLeft.angle.getDegrees());
+    SmartDashboard.putNumber("BL Speed", posData_m_backLeft.distanceMeters);
+    SmartDashboard.putNumber("BR Angle", posData_m_backRight.angle.getDegrees());
+    SmartDashboard.putNumber("BR Speed", posData_m_backRight.distanceMeters);
   }
 
   public void reset() {
-    m_gyro.zeroYaw();
+    m_gyro.resetYaw();
   }
 
   @Override
