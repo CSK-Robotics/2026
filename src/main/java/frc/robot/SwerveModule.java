@@ -163,6 +163,9 @@ public class SwerveModule {
         m_turningMotor.getConfigurator().apply(config_m_turningMotor);
         m_angleSetter = new PositionVoltage(0);
 
+        System.out.println("m_angleSetter(PostiionVoltage)" + m_angleSetter.toString());
+
+
         rel_driveEncoder = m_driveMotor.getEncoder();
         rel_driveEncoder.setPosition(0);
         //rel_angleEncoder = m_turningMotor.getEncoder();
