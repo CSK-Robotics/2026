@@ -26,11 +26,15 @@ import java.util.concurrent.TimeUnit;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CANcoderConfigurator;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -138,8 +142,11 @@ public class SwerveModule {
         // 1. Feedback & Conversion Factors
         // Phoenix 6 uses rotations by default. To match your 'DegreesPerTurnRotation', 
         // we use SensorToMechanismRatio (1 / gear reduction).
-        config_m_turningMotor.Feedback.SensorToMechanismRatio = 1.0 / Constants.Swerve.DegreesPerTurnRotation;
-
+        // config_m_turningMotor.Feedback.SensorToMechanismRatio = 1.0 / Constants.Swerve.angleGearRatio;
+        //config_m_turningMotor.Feedback.SensorToMechanismRatio = 1d;
+        config_m_turningMotor.Feedback.RotorToSensorRatio = 1 / 26.09; 
+        config_m_turningMotor.Feedback.SensorToMechanismRatio = 1d;
+        config_m_turningMotor.MotorOutput.withInverted(InvertedValue.CounterClockwise_Positive);
         // 2. PID Gains (Slot 0)
         var slot0 = config_m_turningMotor.Slot0;
         slot0.kP = Constants.Swerve.angleKP;
@@ -158,19 +165,20 @@ public class SwerveModule {
         config_m_turningMotor.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         config_m_turningMotor.Feedback.FeedbackRemoteSensorID = turningEncoderCANID;
 
+
         // 5. Apply the Configuration
         // This is the Phoenix 6 equivalent of m_turningMotor.configure(...)
         m_turningMotor.getConfigurator().apply(config_m_turningMotor);
         m_angleSetter = new PositionVoltage(0);
-
-        System.out.println("m_angleSetter(PostiionVoltage)" + m_angleSetter.toString());
-
 
         rel_driveEncoder = m_driveMotor.getEncoder();
         rel_driveEncoder.setPosition(0);
         //rel_angleEncoder = m_turningMotor.getEncoder();
 
         m_turningEncoderPE6 = new CANcoder(turningEncoderCANID, "rio");
+        // CANcoderConfigurator m_azimuth_config = m_turningEncoderPE6.getConfigurator();
+        // m_azimuth_config.apply(new CANcoderConfiguration().MagnetSensor.withSensorDirection(SensorDirectionValue.CounterClockwise_Positive));
+
 
         synchronizeEncoders2();
 
@@ -273,11 +281,21 @@ public class SwerveModule {
         }
 
             
-        SmartDashboard.putNumber("Desired " + device_name + " Angle", degReference);
+        SmartDashboard.putNumber("Desired " + device_name + " Angle", degReference/ 360);
         SmartDashboard.putNumber("Desired " + device_name + " Speed", this.desiredState.speedMetersPerSecond);
 
         SmartDashboard.putNumber("Turning" + device_name + " Output Voltage", m_turningMotor.get());
         //System.out.println( "(" + device_name + ")" + "degRef: " + degReference + " desired_speed: " + this.desiredState.speedMetersPerSecond + " current cancoder angle: " + currentAngle);
+        
+        double highest_value = 0;
+
+        if(m_turningMotor.get() > highest_value){
+            highest_value += m_turningMotor.get();
+            System.out.println("highest value: " + highest_value);
+        }
+
+        // System.out.println(device_name+" m_angleSetter(PostiionVoltage)" + m_angleSetter.toString());
+
     }
 
     public void synchronizeEncoders2() {

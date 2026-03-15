@@ -36,10 +36,10 @@ public class Drivetrain extends SubsystemBase {
   public static final double kMaxSpeed = 2.0; // 3 meters per second
   public static final double kMaxAngularSpeed = Math.PI; // 1/2 rotation per second
 
-  private final Translation2d m_frontLeftLocation = new Translation2d(Constants.Swerve.wheelBase / 2.0, Constants.Swerve.trackWidth / 2.0);
-  private final Translation2d m_frontRightLocation = new Translation2d(Constants.Swerve.wheelBase / 2.0, -Constants.Swerve.trackWidth / 2.0);
-  private final Translation2d m_backLeftLocation = new Translation2d(-Constants.Swerve.wheelBase / 2.0, Constants.Swerve.trackWidth / 2.0);
-  private final Translation2d m_backRightLocation = new Translation2d(-Constants.Swerve.wheelBase / 2.0, -Constants.Swerve.trackWidth / 2.0);
+  private final Translation2d m_frontLeftLocation = new Translation2d(Constants.Swerve.wheelBase / 2.0, -Constants.Swerve.trackWidth / 2.0);
+  private final Translation2d m_frontRightLocation = new Translation2d(Constants.Swerve.wheelBase / 2.0, Constants.Swerve.trackWidth / 2.0);
+  private final Translation2d m_backLeftLocation = new Translation2d(-Constants.Swerve.wheelBase / 2.0, -Constants.Swerve.trackWidth / 2.0);
+  private final Translation2d m_backRightLocation = new Translation2d(-Constants.Swerve.wheelBase / 2.0, Constants.Swerve.trackWidth / 2.0);
 
   private final SwerveModule m_frontLeft = new SwerveModule(8, 7, 9, Constants.Swerve.Modules.Mod0.constants, "m_frontLeft", false);
   private final SwerveModule m_frontRight = new SwerveModule(2, 1, 10, Constants.Swerve.Modules.Mod1.constants, "m_frontRight", true);
@@ -239,6 +239,8 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("BL Speed", posData_m_backLeft.distanceMeters);
     SmartDashboard.putNumber("BR Angle", posData_m_backRight.angle.getDegrees());
     SmartDashboard.putNumber("BR Speed", posData_m_backRight.distanceMeters);
+
+    SmartDashboard.putNumber("Gyro", m_gyro.getTemperature().magnitude());
   }
 
   public void reset() {
@@ -247,6 +249,5 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Gyro", m_gyro.getRotation2d().getDegrees());
   }
 }

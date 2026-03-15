@@ -38,10 +38,11 @@ public class Shooter extends SubsystemBase {
 
     SparkFlexConfig feederConfig = new SparkFlexConfig();
     feederConfig.smartCurrentLimit(FEEDER_MOTOR_CURRENT_LIMIT);
+    feederConfig.inverted(true);
     feederRoller.configure(feederConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     SparkFlexConfig launcherConfig = new SparkFlexConfig();
-    launcherConfig.inverted(true);
+    launcherConfig.inverted(false);
     launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
     intakeLauncherRoller.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
@@ -62,7 +63,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public void launch() {
-    // System.out.println("Launch");
+    System.out.println("Launch");
     feederRoller.setVoltage(SmartDashboard.getNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE));
     intakeLauncherRoller.setVoltage(
         SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
@@ -77,8 +78,9 @@ public class Shooter extends SubsystemBase {
   }
 
   public void spinUp() {
-    // System.out.println("Spin Up");
-    feederRoller.setVoltage(SmartDashboard.getNumber("Spin-up feeder roller value", SPIN_UP_FEEDER_VOLTAGE));
+    System.out.println("Spin Up");
+    feederRoller.set(0);
+    // feederRoller.setVoltage(SmartDashboard.getNumber("Spin-up feeder roller value", SPIN_UP_FEEDER_VOLTAGE));
     intakeLauncherRoller.setVoltage(
         SmartDashboard.getNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE));
     // lights.setMode(LightsSubsystem.Mode.SPINUP);
@@ -89,15 +91,22 @@ public class Shooter extends SubsystemBase {
   }
 
   public Command spinUpCommand() {
+    System.out.println(getShooterRPM() > SPIN_UP_SPEED);
+    if (getShooterRPM() < SPIN_UP_SPEED) {
+      spinUp();
+    } else {
+      launch();
+    }
     return this.run(() -> spinUp());
   }
 
   public Command launchCommand() {
+
     return this.run(() -> launch());
   }
 
   public Command shootingCommand() {
-    return this.spinUpCommand().withTimeout(SPIN_UP_SECONDS)
+    return this.spinUpCommand()
             .andThen(this.launchCommand()).finallyDo(() -> this.stop());
   }
 

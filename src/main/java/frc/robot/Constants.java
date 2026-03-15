@@ -48,8 +48,8 @@ public final class Constants {
         public static final double driveRevToMeters = wheelCircumference / (driveGearRatio);
         public static final double driveRpmToMetersPerSecond = driveRevToMeters / 60;
         /* Drivetrain Constants */
-        public static final double trackWidth = Units.inchesToMeters(30); //trackwidth distance between left and right
-        public static final double wheelBase = Units.inchesToMeters(22); // wheelbase distance between front and back
+        public static final double trackWidth = Units.inchesToMeters(25); //trackwidth distance between left and right
+        public static final double wheelBase = Units.inchesToMeters(20); // wheelbase distance between front and back
         /*
          * Swerve Kinematics
          * No need to ever change this unless you are not doing a traditional 
@@ -70,7 +70,7 @@ public final class Constants {
         public static final double drivePeakCurrentDuration = 0.1;
         public static final boolean driveEnableCurrentLimit = true;
         /* Angle Motor PID Values */
-        public static final double angleKP = 0.05;
+        public static final double angleKP = 14.72; //7.36;
         public static final double angleKI = 0;
         public static final double angleKD = 0;
         public static final double angleKFF = 0;
@@ -127,8 +127,8 @@ public final class Constants {
 
             /* Back Right Module - Module 3 */
             public static final class Mod3 {
-                public static final int driveMotorID = 6;
-                public static final int angleMotorID = 5;
+                public static final int driveMotorID = 20;
+                public static final int angleMotorID = 20;
                 public static final int canCoderID = 12;
                 public static final Rotation2d angleOffset = Rotation2d.fromDegrees(0);
                 public static final RevSwerveModuleConstants constants = new RevSwerveModuleConstants(driveMotorID,
@@ -332,8 +332,9 @@ public final class Constants {
     public static final double INTAKING_FEEDER_VOLTAGE = -12;
     public static final double INTAKING_INTAKE_VOLTAGE = 10;
     public static final double LAUNCHING_FEEDER_VOLTAGE = 9;
-    public static final double LAUNCHING_LAUNCHER_VOLTAGE = 10.6;
+    public static final double LAUNCHING_LAUNCHER_VOLTAGE = 7.25;
     public static final double SPIN_UP_FEEDER_VOLTAGE = -6;
     public static final double SPIN_UP_SECONDS = 1;
+    public static final double SPIN_UP_SPEED = 3740.0;
   }
 }
