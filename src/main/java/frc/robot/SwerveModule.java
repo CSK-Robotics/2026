@@ -291,7 +291,7 @@ public class SwerveModule {
 
         if(m_turningMotor.get() > highest_value){
             highest_value += m_turningMotor.get();
-            System.out.println("highest value: " + highest_value);
+            // System.out.println("highest value: " + highest_value);
         }
 
         // System.out.println(device_name+" m_angleSetter(PostiionVoltage)" + m_angleSetter.toString());

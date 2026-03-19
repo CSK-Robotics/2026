@@ -34,15 +34,16 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     // m_swerve.setupAutonomousConfigure();
     // ballSubsystem.setupAutonomousConfigure();
-    m_autonomousCommand = getAutonomousCommand();
+    // m_autonomousCommand = getAutonomousCommand();
   }
 
   @Override
   public void autonomousPeriodic() {
     // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+    // if (m_autonomousCommand != null) {
+    //   m_autonomousCommand.schedule();
+    // }
+    ballSubsystem.spinUpCommand();
   }
 
   @Override
@@ -116,7 +117,7 @@ public class Robot extends TimedRobot {
      * return Commands.none();
      * }
      */
-      return ballSubsystem.run(() -> ballSubsystem.launch()).until(() -> isTeleop());
+      return ballSubsystem.spinUpCommand();
     // return m_swerve.run(() -> m_swerve.drive(0.0, 0.5, 0.0, false, getPeriod())).until(() -> isTeleop());
   }
 }

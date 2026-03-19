@@ -30,6 +30,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import com.studica.frc.*;
+import com.studica.frc.AHRS.NavXComType;
 
 /** Represents a swerve drive style drivetrain. */
 public class Drivetrain extends SubsystemBase {
@@ -47,7 +48,7 @@ public class Drivetrain extends SubsystemBase {
   private final SwerveModule m_backRight = new SwerveModule(6, 5, 12, Constants.Swerve.Modules.Mod3.constants, "m_backRight", true);
 
   //private final AnalogGyro m_gyro = new AnalogGyro(0);
-  private final Navx m_gyro = new Navx(0); /* Alternatives:  SPI.Port.kMXP, I2C.Port.kMXP or SerialPort.Port.kUSB */
+  private final AHRS m_gyro = new AHRS(NavXComType.kUSB2); /* Alternatives:  SPI.Port.kMXP, I2C.Port.kMXP or SerialPort.Port.kUSB */
 
   private final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(
@@ -71,7 +72,7 @@ public class Drivetrain extends SubsystemBase {
           });
 
   public Drivetrain() {
-    m_gyro.resetYaw();
+    m_gyro.zeroYaw();
   }
 
   public void setupAutonomousConfigure() {
@@ -240,11 +241,11 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("BR Angle", posData_m_backRight.angle.getDegrees());
     SmartDashboard.putNumber("BR Speed", posData_m_backRight.distanceMeters);
 
-    SmartDashboard.putNumber("Gyro", m_gyro.getTemperature().magnitude());
+    SmartDashboard.putNumber("Gyro", m_gyro.getYaw());
   }
 
   public void reset() {
-    m_gyro.resetYaw();
+    m_gyro.reset();
   }
 
   @Override
